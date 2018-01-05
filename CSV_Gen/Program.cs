@@ -14,7 +14,7 @@ namespace CSV_Gen
 
         static int Main(string[] args)
         {
-
+            // print a usage error then exit if there aren't two arguments
             if (args.Length != 2)
             {
                 Console.Write("args.Length = {0}\n", args.Length);
@@ -23,8 +23,9 @@ namespace CSV_Gen
 
             }
             
-
+            // args[0] is the input file, read its contents
             string[] lines = System.IO.File.ReadAllLines(@args[0]);
+            // args[1] is the output file
             string outfile = @args[1];
 
             /*
@@ -36,12 +37,12 @@ namespace CSV_Gen
             */
 
             printHeader(outfile);
-            int count = 0;
 
-            
-            foreach (string line in lines)
+            string line = "";
+
+            for (int i = 0; i < lines.Length; i++) // for all lines
             {
-                
+                line = lines[i];
                 appendToFile(outfile, removeEndSpaces(removeFrontSpaces(line.Substring(0, 7))) + ","); //PRODNO
                 appendToFile(outfile, removeEndSpaces(removeFrontSpaces(line.Substring(7, 7))) + ","); //MFG_FIRMNO
                 appendToFile(outfile, removeEndSpaces(removeFrontSpaces(line.Substring(14, 7))) + ","); //REG_FIRMNO
@@ -73,7 +74,10 @@ namespace CSV_Gen
                 appendToFile(outfile, removeEndSpaces(removeFrontSpaces(line.Substring(234, 1))) + ","); //SPECGRAV_SW
                 appendToFile(outfile, removeEndSpaces(removeFrontSpaces(line.Substring(235, 8))) + ","); //SPEC_GRAVITY
                 appendToFile(outfile, removeEndSpaces(removeFrontSpaces(line.Substring(243, 1))) + ","); //CONDREG_SW
-                appendToFile(outfile, removeEndSpaces(removeFrontSpaces(line.Substring(244, 1))) + "\n"); //VAR2_SW
+                appendToFile(outfile, removeEndSpaces(removeFrontSpaces(line.Substring(244, 1)))); //VAR2_SW
+
+                // only print a newline if it isn't the last line
+                if (i != (lines.Length - 1)) appendToFile(outfile, "\n");
                 
 
                 /*
@@ -127,13 +131,18 @@ namespace CSV_Gen
         public static void printHeader(string filename)
         {
 
+            // construct the header
             string csvHeader = "PRODNO,MFG_FIRMNO,REG_FIRMNO,LABEL_SEQ_NO,REVISION_NO,FUT_FIRMNO,PRODSTAT_IND,PRODUCT_NAME,SHOW_REGNO,AER_GRND_IND,AGRICCOM_SW,CONFID_SW,DENSITY,FORMULA_CD,FULL_EXP_DT,";
             csvHeader += "FULL_ISS_DT, FUMIGANT_SW, GEN_PEST_IND,LASTUP_DT,MFG_REF_SW,PROD_INAC_DT,REG_DT,REG_TYPE_IND,RODENT_SW,SIGNLWRD_IND,SOILAPPL_SW,SPECGRAV_SW,SPEC_GRAVITY,CONDREG_SW,VAR2_SW\n";
+            
+            // write the header to the file contained in the string 'filename'
             System.IO.File.WriteAllText(filename, csvHeader);
         }
 
         public static void appendToFile(string filename, string str)
         {
+            // open the file contained in the string 'filename', then append the string
+            // contained in 'str' to it
             using (System.IO.StreamWriter file =
                 new System.IO.StreamWriter(filename, true))
             {
@@ -143,13 +152,13 @@ namespace CSV_Gen
 
         public static string getFirstToken(string inputStr)
         {
-            string pattern = @"[^\s]+";
+            string pattern = @"[^\s]+"; // match 1 or more single consecutive non-whitespace characters
             Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
             MatchCollection matches = rgx.Matches(inputStr);
             if (matches.Count > 0)
             {
                 foreach (Match match in matches)
-                    return match.Value;
+                    return match.Value; // return the first match
             }
             return "";
         }
